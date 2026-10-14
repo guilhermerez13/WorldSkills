@@ -1,0 +1,2016 @@
+html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Interativo - Bancada Smart 4.0 (XL4002)</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #060911;
+            --bg-panel: #0f1624;
+            --bg-card: #162032;
+            --bg-card-alt: #1c283e;
+            --accent-cyan: #00f2fe;
+            --accent-blue: #38bdf8;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --text-light: #f1f5f9;
+            --text-dim: #94a3b8;
+            --border-dark: #26354d;
+            --glow-cyan: 0 0 18px rgba(0, 242, 254, 0.28);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            background: radial-gradient(circle at top right, #1e293b 0%, #060911 80%);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 24px 20px;
+            text-align: center;
+            position: relative;
+        }
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), transparent);
+        }
+        .header-badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 3px 12px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        header h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* MAIN TOP NAVIGATION */
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 14px 20px;
+            background: rgba(15, 22, 36, 0.95);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-dark);
+        }
+        .nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dark);
+            color: var(--text-dim);
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .nav-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-light);
+        }
+        .nav-btn.active {
+            background: linear-gradient(135deg, #0284c7, #00f2fe);
+            color: #060911;
+            border-color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+            font-weight: 700;
+        }
+
+        /* MAIN CONTAINER & WORKSPACE LAYOUT */
+        .container {
+            max-width: 1380px;
+            width: 100%;
+            margin: 28px auto;
+            padding: 0 24px;
+            flex: 1;
+        }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* SPLIT VIEW: SIDEBAR MENU + CONTENT STAGE */
+        .workspace {
+            display: grid;
+            grid-template-columns: 310px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .workspace { grid-template-columns: 1fr; }
+        }
+
+        .item-sidebar {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 14px;
+            position: sticky;
+            top: 84px;
+        }
+        .sidebar-header {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+            padding: 6px 10px 12px 10px;
+            border-bottom: 1px solid var(--border-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .item-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-dim);
+            padding: 12px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            transition: all 0.2s ease;
+        }
+        .item-btn span {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .item-btn i.item-icon {
+            width: 18px;
+            text-align: center;
+            color: var(--accent-blue);
+        }
+        .item-btn:hover {
+            background: var(--bg-card);
+            color: var(--text-light);
+            border-color: var(--border-dark);
+        }
+        .item-btn.active {
+            background: rgba(0, 242, 254, 0.12);
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            box-shadow: inset 3px 0 0 var(--accent-cyan);
+        }
+        .item-btn.active i.item-icon {
+            color: var(--accent-cyan);
+        }
+
+        /* CONTENT STAGE (RIGHT PANEL) */
+        .stage-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 28px;
+            min-height: 480px;
+        }
+        .item-detail { display: none; }
+        .item-detail.active { display: block; animation: fadeIn 0.25s ease; }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding-bottom: 16px;
+            margin-bottom: 22px;
+            border-bottom: 1px solid var(--border-dark);
+        }
+        .stage-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .stage-title i { color: var(--accent-cyan); }
+
+        .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: var(--bg-card-alt);
+            color: var(--accent-cyan);
+            border: 1px solid var(--border-dark);
+        }
+
+        /* EXPLANATION BOXES */
+        .explain-box {
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent-cyan);
+            padding: 18px 20px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 18px;
+        }
+        .explain-box.how { border-left-color: var(--accent-green); }
+        .explain-box.warn { border-left-color: var(--accent-amber); }
+        .explain-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-cyan);
+        }
+        .explain-box.how .explain-label { color: var(--accent-green); }
+        .explain-box.warn .explain-label { color: var(--accent-amber); }
+        .explain-text {
+            font-size: 0.96rem;
+            color: #e2e8f0;
+        }
+
+        /* LISTS & GRIDS */
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; margin-top: 16px; }
+        ul.tech-list { list-style: none; margin-top: 10px; }
+        ul.tech-list li {
+            padding: 10px 14px 10px 28px;
+            position: relative;
+            margin-bottom: 8px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border-dark);
+            color: #cbd5e1;
+            font-size: 0.93rem;
+        }
+        ul.tech-list li::before {
+            content: '▹';
+            position: absolute;
+            left: 10px;
+            color: var(--accent-cyan);
+            font-weight: bold;
+        }
+
+        /* ISA PYRAMID CARDS */
+        .isa-level {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-dark);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+        }
+        .isa-badge {
+            min-width: 105px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: #060911;
+            font-size: 0.85rem;
+        }
+
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-dark);
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-dark);
+            font-size: 0.9rem;
+        }
+        th {
+            background: var(--bg-card-alt);
+            color: var(--accent-cyan);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        tr:hover { background: rgba(255, 255, 255, 0.03); }
+        .code-pill {
+            font-family: 'JetBrains Mono', monospace;
+            background: #090d16;
+            color: var(--accent-amber);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #334155;
+            font-size: 0.82rem;
+        }
+
+        /* IMAGE UPLOAD SLOTS */
+        .img-slot {
+            background: #090d16;
+            border: 2px dashed #334155;
+            border-radius: 10px;
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+        .img-slot:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 242, 254, 0.04);
+        }
+        .img-slot img {
+            max-width: 100%;
+            max-height: 420px;
+            border-radius: 6px;
+            display: none;
+            object-fit: contain;
+        }
+        .img-slot.loaded {
+            border-style: solid;
+            border-color: var(--border-dark);
+            padding: 10px;
+        }
+        .img-slot.loaded .placeholder-info { display: none; }
+        .img-slot.loaded img { display: block; }
+        .placeholder-info i {
+            font-size: 2.2rem;
+            color: var(--accent-blue);
+            margin-bottom: 10px;
+        }
+        .placeholder-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+        .placeholder-ref {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--accent-amber);
+            margin-bottom: 8px;
+        }
+        .placeholder-hint {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            background: var(--bg-card);
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="header-badge">Plataforma XL4000 | Modelo XL4002 | Exsto Labtronix & SENAI</span>
+    <h1>Banco de Ensaios Smart 4.0 — Guia Interativo por Abas</h1>
+</header>
+
+<!-- NÍVEL 1: NAVEGAÇÃO PRINCIPAL DE ETAPAS -->
+<nav class="main-nav">
+    <button class="nav-btn active" onclick="openMainTab(event, 'etapa-1')">
+        <i class="fa-solid fa-layer-group"></i> 1. Visão Geral & Pirâmide ISA
+    </button>
+    <button class="nav-btn" onclick="openMainTab(event, 'etapa-2')">
+        <i class="fa-solid fa-bolt"></i> 2. Elétrica, Pneumática & Segurança
+    </button>
+    <button class="nav-btn" onclick="openMainTab(event, 'etapa-3')">
+        <i class="fa-solid fa-laptop-code"></i> 3. Ferramentas de TI & Softwares
+    </button>
+    <button class="nav-btn" onclick="openMainTab(event, 'etapa-4')">
+        <i class="fa-solid fa-boxes-stacked"></i> 4. Estação Estoque
+    </button>
+    <button class="nav-btn" onclick="openMainTab(event, 'etapa-5')">
+        <i class="fa-solid fa-gears"></i> 5. Estação Processo
+    </button>
+    <button class="nav-btn" onclick="openMainTab(event, 'etapa-6')">
+        <i class="fa-solid fa-robot"></i> 6. Estação Montagem
+    </button>
+    <button class="nav-btn" onclick="openMainTab(event, 'etapa-7')">
+        <i class="fa-solid fa-truck-ramp-box"></i> 7. Estação Expedição
+    </button>
+    <button class="nav-btn" onclick="openMainTab(event, 'etapa-8')">
+        <i class="fa-solid fa-clipboard-check"></i> 8. Provas
+    </button>
+    <button class="nav-btn" onclick="openMainTab(event, 'etapa-9')">
+        <i class="fa-solid fa-file-pdf"></i> 9. Manuais & PDFs
+    </button>
+</nav>
+
+<div class="container">
+
+    <!-- =====================================================================
+         ETAPA 1: VISÃO GERAL & PIRÂMIDE ISA
+         ===================================================================== -->
+    <div id="etapa-1" class="tab-pane active">
+        <div class="workspace">
+            <!-- MENU LATERAL DA ETAPA 1 -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-list-ul"></i> Selecione o Tópico</div>
+                <button class="item-btn active" onclick="openItem(event, 'e1-smartblock')">
+                    <span><i class="fa-solid fa-cube item-icon"></i> Produto SmartBlock & RFID</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'e1-fluxo')">
+                    <span><i class="fa-solid fa-diagram-next item-icon"></i> Fluxo Industrial (6 Etapas)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'e1-isa')">
+                    <span><i class="fa-solid fa-sitemap item-icon"></i> Pirâmide de Automação ISA</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'e1-matriz')">
+                    <span><i class="fa-solid fa-graduation-cap item-icon"></i> Abordagem Pedagógica 4.0</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DE CONTEÚDO DA ETAPA 1 -->
+            <div class="stage-panel">
+                <!-- Item 1.1 -->
+                <div id="e1-smartblock" class="item-detail active">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-cube"></i> O Produto: SmartBlock & Rastreabilidade RFID</div>
+                        <span class="tag">Tag 13,56 MHz | ABS</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">O <strong>SmartBlock</strong> é o produto didático manufaturado pela bancada Smart 4.0. Consiste em um bloco modular produzido por manufatura aditiva (material ABS) com ranhuras laterais para o encaixe de lâminas coloridas personalizadas e finalizado com uma tampa superior, permitindo configurações de 1, 2 ou 3 andares (Bloco Simples, Base Dupla ou Base Tripla).</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">Cada SmartBlock possui uma <strong>Tag RFID passiva (frequência de operação de 13,56 MHz, alcance de 10 mm)</strong> fixada em sua estrutura. O kit completo acompanha blocos nas cores Preto (20 un.), Vermelho (10 un.) e Azul (10 un.), além de jogos de lâminas em 6 cores. Ao transitar pelas esteiras e parar nos <em>Stoppers</em>, as antenas <strong>Siemens SIMATIC RF210R</strong> (conectadas via IO-Link) leem e gravam os dados de rastreabilidade do produto em cada etapa do processo.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_smartblock_geral">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 1.1 e 6.36: Visão Geral da Bancada e Estrutura do SmartBlock</div>
+                            <div class="placeholder-ref">Fonte: Manual do Usuário (Pág. 5 e 33)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="SmartBlock">
+                    </div>
+                </div>
+
+                <!-- Item 1.2 -->
+                <div id="e1-fluxo" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-diagram-next"></i> Fluxo do Processo Industrial (6 Etapas)</div>
+                        <span class="tag">Ciclo Produtivo Completo</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">É a sequência operacional automatizada que transforma os insumos brutos (bases e lâminas) em um pedido customizado entregue na expedição, integrando as 4 estações físicas.</p>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>01. Estoque:</strong> No início do processo, todas as peças (SmartBlocks base) estão armazenadas nas prateleiras da primeira bancada (capacidade de 28 blocos).</li>
+                        <li><strong>02. Pedido:</strong> Todo o sistema aguarda a ordem de produção emitida pelo usuário através da Loja Virtual (escolha de cores, andares e desenhos).</li>
+                        <li><strong>03. Produção:</strong> Após o pedido, o manipulador coleta as peças individualmente, depositando-as na esteira até a etapa de processamento, sendo identificadas pelos leitores RFID.</li>
+                        <li><strong>04. Processamento:</strong> As lâminas laterais são retiradas do magazine de 6 cores e levadas à base de gravação/personalização pelo manipulador cartesiano para preparar a montagem.</li>
+                        <li><strong>05. Montagem:</strong> O robô colaborativo UR3e realiza o encaixe das lâminas e empilhamento do pedido sobre a plataforma formada por 3 posições enumeradas, sob validação do sistema de visão.</li>
+                        <li><strong>06. Finalização:</strong> Com a montagem concluída e enviada à Expedição (capacidade de 12 blocos), o robô retorna à posição de início e aguarda um novo pedido.</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_fluxo_industrial">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Diagrama: Processo Industrial (Etapas 01 a 06)</div>
+                            <div class="placeholder-ref">Fonte: Apresentação Técnica XL4002 (Pág. 24)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Fluxo Industrial">
+                    </div>
+                </div>
+
+                <!-- Item 1.3 -->
+                <div id="e1-isa" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-sitemap"></i> Pirâmide de Automação Industrial (Modelo ISA)</div>
+                        <span class="tag">Níveis 0 a 4</span>
+                    </div>
+                    <div class="isa-level">
+                        <div class="isa-badge" style="background: #f97316;">NÍVEL 4<br><small>ERP / CLOUD</small></div>
+                        <div>
+                            <strong>Gestão Corporativa, Loja Virtual e Computação em Nuvem (IoT):</strong>
+                            <p style="color: var(--text-dim); font-size: 0.9rem;">Entrada de pedidos via Website (Loja), protocolo <strong>MQTT / HTTP</strong>, plataforma <strong>TagoIO</strong> (Big Data & Cloud Computing) e scripts em <strong>Python / JavaScript</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="isa-level">
+                        <div class="isa-badge" style="background: #84cc16;">NÍVEL 3<br><small>MES & WMS</small></div>
+                        <div>
+                            <strong>Execução de Manufatura (Elipse F4) e Gerenciamento de Estoque:</strong>
+                            <p style="color: var(--text-dim); font-size: 0.9rem;">Planejamento e Controle da Produção (PCP), cálculo de <strong>OEE</strong>, Gráficos de Gantt, Banco de Dados <strong>SQL</strong>, switches gerenciáveis e Cibersegurança.</p>
+                        </div>
+                    </div>
+                    <div class="isa-level">
+                        <div class="isa-badge" style="background: #38bdf8;">NÍVEL 2<br><small>SCADA & IHM</small></div>
+                        <div>
+                            <strong>Supervisão e Operação Local (WinCC / Elipse E3 / KTP700 / AOA):</strong>
+                            <p style="color: var(--text-dim); font-size: 0.9rem;">Telas sinóticas de monitoramento, alarmes, operação touch via IHM KTP700, comunicação <strong>OPC UA</strong> e Realidade Aumentada (Schneider AOA).</p>
+                        </div>
+                    </div>
+                    <div class="isa-level">
+                        <div class="isa-badge" style="background: #a855f7;">NÍVEL 1<br><small>CLP & ROBÔ</small></div>
+                        <div>
+                            <strong>Controle Lógico e Programação (S7-1200 / S7-1500 / PolyScope):</strong>
+                            <p style="color: var(--text-dim); font-size: 0.9rem;">Programação no <strong>TIA Portal</strong> (Ladder, Texto Estruturado/STL, Graph, Bloco de Funções), CodeSys, controlador robótico PolyScope e rede Profinet.</p>
+                        </div>
+                    </div>
+                    <div class="isa-level">
+                        <div class="isa-badge" style="background: #10b981;">NÍVEL 0<br><small>CHÃO DE FÁBRICA</small></div>
+                        <div>
+                            <strong>Dispositivos de Campo, Sensores, Atuadores e Gêmeo Digital:</strong>
+                            <p style="color: var(--text-dim); font-size: 0.9rem;">Atuadores elétricos e pneumáticos, válvulas IO-Link, RFID, visão computacional MVISIA, multimedidor Smart Sense e Simulador Digital Twin.</p>
+                        </div>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_piramide_isa">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Diagrama: Modelo ISA e Integração de Sistemas</div>
+                            <div class="placeholder-ref">Fonte: Apresentação Técnica XL4002 (Pág. 21 a 23)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Pirâmide ISA">
+                    </div>
+                </div>
+
+                <!-- Item 1.4 -->
+                <div id="e1-matriz" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-graduation-cap"></i> Mapa de Abordagem Pedagógica (Dispositivos x Aplicações)</div>
+                        <span class="tag">Tecnologias Habilitadoras</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Mapeamento completo das competências de Indústria 4.0 divididas por domínio tecnológico na bancada XL4002.</p>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>Visão Computacional:</strong> Câmera SensoPart (SENS+CVU), software MVISIA Edge, Machine Learning e Python.</li>
+                        <li><strong>Robótica Colaborativa:</strong> Braço robótico Universal Robots UR3e, garra Schunk EGH80 e ambiente PolyScope.</li>
+                        <li><strong>CLP & Supervisão:</strong> CPUs S7-1200 (1215C) e S7-1500, IHM KTP700, TIA Portal (Ladder/STL), WinCC Advanced, Elipse E3 e OPC UA.</li>
+                        <li><strong>Redes, Cibersegurança & IoT:</strong> Roteadores/Firewalls SCALANCE S615, Switch XC208, SINEMA RC, Profinet, IO-Link (AL1320 / SM1278), RFID RF200, MQTT, Raspberry Pi / X-Machine e TagoIO.</li>
+                        <li><strong>Eletropneumática & Safety:</strong> Atuadores elétricos e drivers SMC JXC, bloco de válvulas EX200/EX260, Relés de Segurança XPSBAC14AP e Scanner 2D OS32C.</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_mapa_pedagogico">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Diagrama: Abordagem Pedagógica Completa</div>
+                            <div class="placeholder-ref">Fonte: Apresentação Técnica XL4002 (Pág. 25)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Mapa Pedagógico">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         ETAPA 2: ELÉTRICA, PNEUMÁTICA & SEGURANÇA
+         ===================================================================== -->
+    <div id="etapa-2" class="tab-pane">
+        <div class="workspace">
+            <!-- MENU LATERAL DA ETAPA 2 -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-bolt"></i> Selecione o Componente</div>
+                <button class="item-btn active" onclick="openItem(event, 'e2-instalacao')">
+                    <span><i class="fa-solid fa-plug-circle-check item-icon"></i> Instalação e Energização</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'e2-clp')">
+                    <span><i class="fa-solid fa-microchip item-icon"></i> CLPs S7-1200 e S7-1500</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'e2-smc')">
+                    <span><i class="fa-solid fa-arrows-up-down-left-right item-icon"></i> Drivers e Atuadores SMC</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'e2-seguranca')">
+                    <span><i class="fa-solid fa-shield-halved item-icon"></i> Segurança NR-10 / NR-12</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'e2-smartsense')">
+                    <span><i class="fa-solid fa-gauge-high item-icon"></i> Multimedidor Smart Sense</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'e2-botoeira')">
+                    <span><i class="fa-solid fa-tablet-screen-button item-icon"></i> Painel Frontal e IHM</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DE CONTEÚDO DA ETAPA 2 -->
+            <div class="stage-panel">
+                <!-- Item 2.1 -->
+                <div id="e2-instalacao" class="item-detail active">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-plug-circle-check"></i> Instalação Física, Elétrica e Pneumática</div>
+                        <span class="tag">110/220 VCA | 3 kVA | 14A</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Conjunto de requisitos físicos e procedimentos de ligação em cascata (elétrica e ar comprimido) necessários para posicionar e energizar as 4 bancadas com segurança.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona a ligação passo a passo?</span>
+                        <p class="explain-text">1) <strong>Local:</strong> Ambiente interno coberto, seco, iluminado, piso plano antideslizante ($3050 \times 1620 \times 980\text{ mm}$, peso total $880\text{ kg}$).<br>
+                        2) <strong>Conferência Interna:</strong> Com a tomada desligada, abra o painel e verifique se o disjuntor DR (<strong>-DR1: 25A, 30mA</strong>) e os 2 disjuntores termomagnéticos bipolares (<strong>-Q1 e -Q2: 10A</strong>) estão ligados.<br>
+                        3) <strong>Ligação em Cascata:</strong> Conecte o cabo de alimentação (plugue 2P+Terra NBR 14136) na entrada <strong>-TM1</strong> da primeira bancada e derive um cabo da saída <strong>-TM2</strong> para a entrada da bancada seguinte. Repita a derivação para o ar comprimido usando tubo poliuretano de $6\text{ mm}$.<br>
+                        4) <strong>Energização:</strong> Posicione as chaves seccionadoras vermelhas (<strong>-Q0: 12A</strong>) para cima, libere os botões de emergência e pressione o botão azul de <strong>Reset (-S1)</strong>.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_ligacao_cascata">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 6.1: Esquema de Ligação Elétrica em Cascata</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 2) / Manual do Usuário (Pág. 13)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Ligação em Cascata">
+                    </div>
+                </div>
+
+                <!-- Item 2.2 -->
+                <div id="e2-clp" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-microchip"></i> Controladores CLPs Siemens (S7-1200 e S7-1500)</div>
+                        <span class="tag">Profinet & IO-Link</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">São os controladores centrais de cada bancada. As estações Estoque, Processo e Expedição utilizam o <strong>Siemens SIMATIC S7-1200 (CPU 1215C DC/DC/DC - 6ES7215-1AG40-0XB0)</strong> acoplado ao módulo mestre IO-Link <strong>SM 1278 (6ES7278-4BD32-0XB0)</strong>. A estação Montagem utiliza o <strong>Siemens SIMATIC S7-1500 (CPU 1512SP-1 PN - 6ES7512-1CK00-0AB0)</strong> com módulo mestre <strong>CM 4xIO-Link (6ES7547-1JF00-0AB0)</strong>.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">Alimentados em 24 VCC pela fonte chaveada SITOP (10A), os CLPs executam a leitura dos sensores magnéticos, ópticos e vacuostatos nas portas digitais (%I), processam a lógica e chaveiam as saídas (%Q) isoladas por relés de interface (-OP e -RA). A porta Ethernet dupla integrada estabelece a rede <strong>Profinet</strong> com a IHM, drivers SMC e supervisório.</p>
+                    </div>
+                </div>
+
+                <!-- Item 2.3 -->
+                <div id="e2-smc" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-arrows-up-down-left-right"></i> Drivers JXCP18-BC e Atuadores Elétricos SMC</div>
+                        <span class="tag">Controle de Eixos</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Conjunto de movimentação eletromecânica formado pelos controladores de motor de passo <strong>SMC JXCP18-BC</strong> instalados nos painéis elétricos e pelos atuadores lineares (<code>LEFS16B-250</code>, <code>LEFS16B-300</code>, <code>LEFS16RB-400</code>, <code>LEYG16MB-150</code>) e rotativos (<code>LERH50K</code>).</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">Cada driver JXCP18-BC possui duas portas Ethernet Profinet para conexão em linha (daisy-chain) com o CLP e conectores dedicados para o motor 24 VCC e seu encoder incremental. O CLP envia o setpoint de posição (em milímetros ou graus) via telegrama Profinet e o driver executa a malha fechada de posição com alta repetibilidade.</p>
+                    </div>
+                </div>
+
+                <!-- Item 2.4 -->
+                <div id="e2-seguranca" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-shield-halved"></i> Sistema de Segurança NR-10 e NR-12</div>
+                        <span class="tag">XPSBAC14AP | VP544</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Malha de segurança dedicada contra choques elétricos e acidentes mecânicos, composta pelo Relé de Segurança <strong>Schneider XPSBAC14AP (-RS1)</strong>, contatores redundantes <strong>LC1D09BD (-KS1 e -KS2)</strong>, Válvula de Segurança Pneumática <strong>SMC VP544-5DZ1 (-YS1)</strong> e botões de emergência com retenção (-S3).</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">Quando qualquer botão de emergência é pressionado, o relé -RS1 corta a alimentação das bobinas dos contatores -KS1 e -KS2. Isso interrompe fisicamente o barramento <strong>+S (24 VCC chaveado)</strong> que alimenta os relés de saída, motores de esteira e a entrada de potência dos drivers SMC, além de desenergizar a válvula -YS1 (que corta e exaure o ar comprimido do sistema). O retorno exige liberar a emergência e pressionar o botão azul de <strong>Reset (-S1)</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- Item 2.5 -->
+                <div id="e2-smartsense" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-gauge-high"></i> Multimedidor IoT Smart Sense (-P1) e Lab Remoto</div>
+                        <span class="tag">MQTT | OPC UA | Wi-Fi</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Dispositivo de aquisição de dados e telemetria IoT (-P1) instalado na parte superior esquerda do painel elétrico de todas as bancadas, operando em conjunto com sensores ambientais e câmeras Wi-Fi Speed Dome.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">Monitora continuamente a tensão, corrente e consumo energético da estação, bem como vazão, pressão e volume de ar comprimido consumido, temperatura ($0^\circ\text{C}$ a $50^\circ\text{C}$), umidade relativa (20 a 90% UR) e gases tóxicos (CO2, amônia, benzeno, fumaça). Transmite os pacotes via Wi-Fi usando <strong>MQTT, HTTP e OPC UA</strong> diretamente para os dashboards em nuvem da <strong>TagoIO</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- Item 2.6 -->
+                <div id="e2-botoeira" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-tablet-screen-button"></i> Painel de Operação Frontal e IHM KTP700</div>
+                        <span class="tag">Interface Homem-Máquina</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Painel de comando local situado na parte frontal de cada bancada, reunindo a tela touch <strong>Siemens SIMATIC HMI KTP700 Basic 7"</strong> e os botões de comando e sinalização.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona cada um dos 8 elementos?</span>
+                        <p class="explain-text"><strong>1. IHM (KTP 700):</strong> Controle manual (Jog), referenciamento e visualização de status.<br>
+                        <strong>2. Chave para Setup (-S2):</strong> Comutador de 2 posições fixas para alternar modo de operação.<br>
+                        <strong>3. Botão de Start (-S5):</strong> Botão verde pulsante (1NA) para início de ciclo.<br>
+                        <strong>4. Botão de Stop (-S4):</strong> Botão vermelho pulsante (1NF) para parada controlada.<br>
+                        <strong>5. Botão de Emergência (-S3):</strong> Botão tipo cogumelo vermelho com trava (2NF) para parada imediata.<br>
+                        <strong>6. Botão e Indicação de Reset (-S1):</strong> Botão luminoso azul para rearme do relé de segurança.<br>
+                        <strong>7. Indicação de Segurança OK (-H1):</strong> Sinaleiro LED verde indicando máquina habilitada.<br>
+                        <strong>8. Indicação de Segurança Acionada (-H2):</strong> Sinaleiro LED vermelho indicando bloqueio de segurança.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_botoeira_frontal">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 7.5.1: Painel de Operação e IHM Numerada (1 a 8)</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 13) / Manual do Usuário (Pág. 54 e 68)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Botoeira Frontal">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         ETAPA 3: FERRAMENTAS DE TI & SOFTWARES
+         ===================================================================== -->
+    <div id="etapa-3" class="tab-pane">
+        <div class="workspace">
+            <!-- MENU LATERAL DA ETAPA 3 -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-laptop-code"></i> Selecione o Software</div>
+                <button class="item-btn active" onclick="openItem(event, 's3-tia')">
+                    <span><i class="fa-solid fa-code item-icon"></i> 1. TIA Portal & Licenças</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 's3-wincc')">
+                    <span><i class="fa-solid fa-desktop item-icon"></i> 2. Sistema SCADA (WinCC)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 's3-mes')">
+                    <span><i class="fa-solid fa-chart-pie item-icon"></i> 3. Sistema MES (Elipse F4)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 's3-simulador')">
+                    <span><i class="fa-solid fa-vr-cardboard item-icon"></i> 4. Simulador 3D & ExtLab</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 's3-loja')">
+                    <span><i class="fa-solid fa-cart-shopping item-icon"></i> 5. Loja Web & Estoque XL</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 's3-aoa')">
+                    <span><i class="fa-solid fa-mobile-screen item-icon"></i> 6. Realidade Aumentada (AOA)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 's3-nodered')">
+                    <span><i class="fa-solid fa-diagram-project item-icon"></i> 7. Node-RED & TagoIO Cloud</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 's3-act-ur')">
+                    <span><i class="fa-solid fa-sliders item-icon"></i> 8. ACT Controller & PolyScope</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DE CONTEÚDO DA ETAPA 3 -->
+            <div class="stage-panel">
+                <!-- Software 1: TIA Portal -->
+                <div id="s3-tia" class="item-detail active">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-code"></i> TIA Portal (STEP 7 Professional & Basic)</div>
+                        <span class="tag">Programação CLP & IHM</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Ferramenta computacional oficial da Siemens para configuração de redes Profinet/IO-Link, programação lógica dos CLPs S7-1200 e S7-1500 e desenvolvimento gráfico das IHMs KTP700. Acompanha 3 licenças Step 7 Basic e 1 licença Step 7 Professional com WinCC.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona a instalação da licença (Cap. 6.4.1)?</span>
+                        <p class="explain-text">1) Conecte o Pen Drive USB de licença Siemens no computador;<br>
+                        2) Execute o software <strong>Automation License Manager</strong>;<br>
+                        3) Na árvore à esquerda, selecione a unidade referente ao Pen Drive USB;<br>
+                        4) Clique sobre as licenças exibidas na lista;<br>
+                        5) Acesse o menu superior <code>License Key -> Transfer...</code>;<br>
+                        6) Selecione o <code>Disco Local (C:)</code> como destino e confirme para habilitar o uso pleno do TIA Portal.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_tia_license">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 6.2: Transferência de Licença no Automation License Manager</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 3) / Manual do Usuário (Pág. 14)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="TIA Portal License">
+                    </div>
+                </div>
+
+                <!-- Software 2: WinCC SCADA -->
+                <div id="s3-wincc" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-desktop"></i> Sistema SCADA Supervisório (Siemens WinCC)</div>
+                        <span class="tag">Supervisão Central</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Sistema supervisório central desenvolvido no software WinCC que permite monitorar e habilitar remotamente todas as estações da Smart 4.0 a partir do PC servidor.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">Divide-se em telas específicas de operação:<br>
+                        • <strong>Tela Geral:</strong> Habilita individualmente as estações (Estoque, Processo, Montagem e Expedição), exibe o número da Ordem de Produção (OP) em curso e dá acesso à verificação de alarmes.<br>
+                        • <strong>Tela Alarmes do Sistema:</strong> Registra todas as falhas e paradas de emergência.<br>
+                        • <strong>Telas Sinóticas (Estoque, Processo, Montagem e Expedição):</strong> Apresentam o desenho esquemático de cada bancada, o estado de todas as Entradas Digitais, Saídas Digitais e a posição atual dos atuadores elétricos.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_wincc_scada">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 6.6 a 6.11: Telas Gerais, Alarmes e Sinóticos do WinCC</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 6 a 8) / Manual do Usuário (Pág. 17 a 19)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="WinCC SCADA">
+                    </div>
+                </div>
+
+                <!-- Software 3: Sistema MES Elipse F4 -->
+                <div id="s3-mes" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-chart-pie"></i> Sistema MES (Elipse F4)</div>
+                        <span class="tag">PCP & OEE | Hardkey USB</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Sistema de Execução de Manufatura (MES) responsável pelo planejamento, programação, apontamento e controle da produção no chão de fábrica, licenciado via chave física Hardkey USB.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">Conecta a linha de produção (via Node-RED e F4 API) ao F4 Server e ao Banco de Dados:<br>
+                        • <strong>F4 Portal (Interface Web PCP):</strong> Permite cadastrar <em>Calendários</em> (turnos e intervalos), <em>Produtos e Roteiros</em> (Desestocar, Laminar/Gravar, Montar, Expedir), gerenciar a fila de <em>Planejamento de Ordens de Produção</em>, visualizar o <em>Gráfico de Gantt</em> das máquinas, monitorar o <em>Acompanhamento</em> em tempo real e analisar os índices de <strong>OEE</strong> (Disponibilidade, Performance e Qualidade).<br>
+                        • <strong>F4 Workstation:</strong> Tela web para operadores realizarem apontamentos e lerem instruções de trabalho.<br>
+                        • <strong>F4 ETL:</strong> Importação de ordens vindas de sistemas ERP.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_elipse_f4">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 6.12 a 6.18: Fluxo do Elipse F4, OEE, Planejamento e Gantt</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 9 a 13) / Manual do Usuário (Pág. 20 a 24)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Elipse F4 MES">
+                    </div>
+                </div>
+
+                <!-- Software 4: Simulador 3D e ExtLab -->
+                <div id="s3-simulador" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-vr-cardboard"></i> Simulador Smart 4.0 (Gêmeo Digital) & Gerenciador de Licenças</div>
+                        <span class="tag">Modbus & Profinet</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Ferramenta de virtualização digital 3D que simula o funcionamento físico das 4 bancadas para ensino de lógica e comissionamento virtual, comunicando-se com CLPs reais ou virtuais via Profinet ou Modbus.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona o Gerenciador de Licenças ExtLab Simulator (Cap. 6.4.8)?</span>
+                        <p class="explain-text">1) <strong>Coordenador:</strong> Faz login no portal web <em>ExtLab Simulator</em> e acessa as abas <em>Minha Escola</em>, <em>Meus Professores</em> e <em>Minhas Turmas</em> para cadastrar os docentes e criar as turmas.<br>
+                        2) <strong>Professor:</strong> Faz login no portal, acessa <em>Minhas Turmas</em> e clica no botão <strong>"Ver PIN"</strong> para gerar o código de acesso daquela turma.<br>
+                        3) <strong>Aluno:</strong> Cria sua conta no site, faz login, clica em <strong>"TENHO UM PIN"</strong> para vincular-se à turma do professor e, por fim, abre o software Simulador 3D inserindo seu E-mail, Senha e PIN da turma.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_simulador_3d">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 6.19 a 6.33: Simulador 3D e Telas do Gerenciador ExtLab</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 13 a 20) / Manual do Usuário (Pág. 24 a 31)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Simulador 3D">
+                    </div>
+                </div>
+
+                <!-- Software 5: Website Loja e Gerenciador de Estoque -->
+                <div id="s3-loja" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-cart-shopping"></i> Website (Loja de Pedidos) & Gerenciador de Estoque</div>
+                        <span class="tag">Interface do Cliente & SQL</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">O <strong>Website (Loja)</strong> é o portal de e-commerce onde o usuário personaliza e encomenda seu SmartBlock. Já o <strong>Gerenciador de Estoque</strong> é o aplicativo gráfico integrado ao banco SQL e ao WinCC para controle das prateleiras.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funcionam?</span>
+                        <p class="explain-text">• <strong>Na Loja Virtual:</strong> O cliente escolhe o produto (1 a 3 andares), a cor do bloco de cada andar, as cores das lâminas (Esquerda, Frontal, Direita) e os desenhos (Casa, Barco, Estrela). Após gerar o pedido, acompanha o status em tempo real e pode receber notificações via <strong>Telegram</strong>.<br>
+                        • <strong>No Gerenciador de Estoque:</strong> Possui 3 telas: <em>Disponibilidade</em> (mostra ocupação percentual do Estoque e da Expedição e contagem por cor), <em>Adicionar</em> (insere blocos automatizadamente informando Posição, Cor e OP) e <em>Remover</em> (retira blocos selecionados da lista).</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_loja_estoque">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 6.34 a 6.39: Loja de Personalização e Gerenciador de Estoque</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 21 a 23) / Manual do Usuário (Pág. 32 a 34)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Loja e Estoque">
+                    </div>
+                </div>
+
+                <!-- Software 6: Realidade Aumentada AOA -->
+                <div id="s3-aoa" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-mobile-screen"></i> Realidade Aumentada (Schneider AOA Runtime)</div>
+                        <span class="tag">IP: 192.168.1.200 | Porta: 9000</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Aplicação <strong>EcoStruxure Augmented Operator Advisor (AOA)</strong> da Schneider Electric que sobrepõe variáveis do processo, esquemas elétricos e procedimentos operacionais diretamente na imagem da câmera de um tablet ou smartphone.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona a configuração no dispositivo móvel (Cap. 6.4.11)?</span>
+                        <p class="explain-text">1) Conecte o dispositivo móvel na mesma rede Wi-Fi do notebook servidor;<br>
+                        2) Abra o app <em>Augmented Operator Advisor</em>, clique na seta de <em>Conexión personalizada</em> e toque em <strong>Editar</strong>;<br>
+                        3) Insira o IP padrão do servidor (<code>192.168.1.200</code>) e a Porta (<code>9000</code>), clique em <em>Guardar</em> e faça login com o usuário <code>admin</code>;<br>
+                        4) Selecione o projeto e escolha entre <strong>Cenas (Escenas)</strong> — que lê as tags visuais nas bancadas, permite "congelar" a imagem e abrir valores ao vivo, manuais e notas — ou <strong>Procedimentos</strong> (guias passo a passo nos modos <em>Training</em> ou <em>Expert</em>).</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_aoa_ar">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 6.40 a 6.48: Configuração e Uso do App AOA Schneider</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 24 a 27) / Manual do Usuário (Pág. 35 a 38)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Realidade Aumentada AOA">
+                    </div>
+                </div>
+
+                <!-- Software 7: Node-RED & TagoIO -->
+                <div id="s3-nodered" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-diagram-project"></i> Node-RED (Middleware IoT) & TagoIO (Cloud Computing)</div>
+                        <span class="tag">localhost:1880 | Telemetria</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">O <strong>Node-RED</strong> é a ferramenta visual baseada em navegador (construída sobre Node.js) que conecta os CLPs às APIs do Elipse F4, ao AOA e ao Telegram. A <strong>TagoIO</strong> é a plataforma em nuvem que exibe os indicadores energéticos, pneumáticos e de produtividade.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como instalar o Node-RED e acessar o TagoIO (Cap. 6.4.12 e 6.4.13)?</span>
+                        <p class="explain-text">• <strong>Node-RED:</strong> 1) Baixe e instale o <code>Node.js (16.16.0 LTS)</code> como administrador; 2) Abra o Prompt de Comando (CMD) como administrador e execute <code>npm install -g --unsafe-perm node-red</code>; 3) Digite <code>node-red</code> no prompt para iniciar o servidor; 4) Abra o navegador em <code>http://127.0.0.1:1880/</code> ou <code>localhost:1880</code>.<br>
+                        • <strong>TagoIO:</strong> Possui dashboards em nuvem por bancada exibindo <em>Consumo Energético (instantâneo e total)</em>, <em>Consumo de Ar Comprimido (instantâneo e total)</em>, <em>Custo de Produção por Pedido</em> e <em>Status Global de Produtividade</em>.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_nodered_tago">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 6.49 a 6.55: Instalação Node-RED e Dashboards TagoIO</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 28 a 30) / Manual do Usuário (Pág. 39 a 41)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Node-RED e TagoIO">
+                    </div>
+                </div>
+
+                <!-- Software 8: ACT Controller & PolyScope -->
+                <div id="s3-act-ur" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-sliders"></i> SMC ACT Controller & Universal Robots PolyScope</div>
+                        <span class="tag">Configuração de Eixos e Robô</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">O <strong>ACT Controller</strong> é o software gratuito da SMC para parametrização dos drivers de atuadores elétricos JXCP18-BC. O <strong>PolyScope</strong> é a interface gráfica da Universal Robots para programação do robô colaborativo UR3e.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funcionam?</span>
+                        <p class="explain-text">• <strong>ACT Controller:</strong> Permite configurar parâmetros de curso, velocidade máxima, aceleração, força e realizar testes de movimentação e referenciamento (homing) dos eixos elétricos.<br>
+                        • <strong>PolyScope:</strong> Acessível pelo Teach Pendant da Bancada Montagem (ou no PC), permite criar árvores de programa (Pick and Place) combinando comandos de movimento (MoveJ, MoveL), espera (Wait), leitura/escrita de I/Os e controle da garra colaborativa.</p>
+                    </div>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_act_polyscope">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 6.4 e 6.5: Interfaces do ACT Controller e PolyScope</div>
+                            <div class="placeholder-ref">Fonte: Instalação.pdf (Pág. 4 e 5) / Manual do Usuário (Pág. 15 e 16)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="ACT Controller e PolyScope">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         ETAPA 4: ESTAÇÃO 1 — BANCADA ESTOQUE
+         ===================================================================== -->
+    <div id="etapa-4" class="tab-pane">
+        <div class="workspace">
+            <!-- MENU LATERAL DA ESTAÇÃO ESTOQUE -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-boxes-stacked"></i> Estação Estoque</div>
+                <button class="item-btn active" onclick="openItem(event, 'est-1')">
+                    <span><i class="fa-solid fa-circle-info item-icon"></i> O que é e Como Funciona</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'est-2')">
+                    <span><i class="fa-solid fa-gears item-icon"></i> 7.1.1 Elementos da Bancada</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'est-3')">
+                    <span><i class="fa-solid fa-wind item-icon"></i> 7.1.2 Compartimento Traseiro</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'est-4')">
+                    <span><i class="fa-solid fa-bolt item-icon"></i> 7.1.3 Painel Elétrico</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'est-5')">
+                    <span><i class="fa-solid fa-table-list item-icon"></i> 7.1.4 Tabela de I/Os (S7-1200)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DA ESTAÇÃO ESTOQUE -->
+            <div class="stage-panel">
+                <div id="est-1" class="item-detail active">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-boxes-stacked"></i> Bancada Estoque — Conceito e Funcionamento</div>
+                        <span class="tag">Capacidade: 28 SmartBlocks</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Primeira estação do Banco de Ensaios Smart 4.0 ($600 \times 1620 \times 980\text{ mm}$), responsável por armazenar até 28 SmartBlocks em uma estrutura semicircular de 4 andares e abastecer automaticamente a linha de produção conforme os pedidos.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">1) O CLP Siemens S7-1200 comanda os 2 drivers SMC JXCP18-BC via Profinet para posicionar o manipulador no andar (atuador linear vertical <code>LEFS16B-250</code>) e no ângulo (atuador rotativo <code>LERH50K</code>) onde se encontra o bloco solicitado.<br>
+                        2) O cilindro horizontal de haste dupla (<code>CXSM15-100</code>) avança, a garra pneumática (<code>MHZL2-16D</code>) fecha para retirar o bloco da prateleira e o deposita sobre o cilindro alimentador sem haste (<code>MY1B</code>).<br>
+                        3) A ventosa prende o bloco por vácuo, leva-o até a esteira, o cilindro posicionador alinha a peça e a antena <strong>RFID RF210R</strong> (no Stopper) valida os dados via IO-Link antes de liberar o bloco para a estação Processo.</p>
+                    </div>
+                </div>
+
+                <div id="est-2" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-gears"></i> 7.1.1 Elementos Superiores da Bancada Estoque</div>
+                        <span class="tag">Itens 1 a 7 do Manual</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Esteiras:</strong> Par de esteiras paralelas de 600mm (Guard Rail Aberto e Fechado) acionadas por motorredutores 24 VCC (33 RPM).</li>
+                        <li><strong>2. Stopper:</strong> Barreira pneumática com minicilindros CJ1 e antena RFID RF210R para indexação e leitura das tags dos blocos.</li>
+                        <li><strong>3. Esteira de Giro:</strong> Curva de retorno acoplada na extremidade esquerda para transferência de peças entre as duas faixas de esteira.</li>
+                        <li><strong>4. Conexão Elétrica Esteiras:</strong> Tomadas industriais multipolares tipo Mike (CX16 de 2 e 4 pinos) no tampo da bancada.</li>
+                        <li><strong>5. Cilindro Posicionador e Garra:</strong> Conjunto pneumático para avanço, pega na prateleira e alinhamento do bloco na entrada da esteira.</li>
+                        <li><strong>6. Atuador Elétrico Armazenador Sobe/Desce:</strong> Eixo linear vertical SMC (<code>LEFS16B-250</code>, 250mm, 22W) para seleção do andar (1º ao 4º).</li>
+                        <li><strong>7. Atuador Elétrico Armazenador Giro:</strong> Eixo rotativo SMC (<code>LERH50K</code>, 10 N.m) na base da coluna para giro angular entre as colunas do magazine.</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_estoque_3d">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 7.1.1: Vista Superior Numerada da Bancada Estoque (1 a 7)</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 1) / Manual do Usuário (Pág. 42)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Bancada Estoque">
+                    </div>
+                </div>
+
+                <div id="est-3" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-wind"></i> 7.1.2 Compartimento Traseiro (Pneumática e Conexões)</div>
+                        <span class="tag">Itens 1 a 12 do Manual</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Entrada Ar Comprimido:</strong> Engate rápido passa-muro de 6mm para alimentação pneumática.</li>
+                        <li><strong>2. Entrada Alimentação Elétrica (-TM1):</strong> Conector IEC macho para cabo de força 110/220 VCA.</li>
+                        <li><strong>3. Seccionadora Geral (-Q0):</strong> Chave rotativa tripolar de emergência de 12A (VCF02).</li>
+                        <li><strong>4. Alimentação da Próxima Bancada (-TM2):</strong> Tomada 2P+T para derivar energia à estação vizinha.</li>
+                        <li><strong>5. Porta Ethernet RJ-45 (-RJ2):</strong> Ponto de rede externo conectado ao switch interno da bancada.</li>
+                        <li><strong>6. Válvula Manual:</strong> Registro manual (VHK2) para abertura/fechamento rápido do ar.</li>
+                        <li><strong>7. Saída de Ar para Próxima Bancada:</strong> Engate rápido 6mm para derivação pneumática em cascata.</li>
+                        <li><strong>8. Válvulas:</strong> Sub-base manifold com 4 válvulas solenoides direcionais SMC (-Y1 a -Y5: séries SY5120 e SY5520).</li>
+                        <li><strong>9. Gerador de Vácuo:</strong> Ejetor de vácuo por efeito Venturi (SMC ZU07S).</li>
+                        <li><strong>10. Vacuostato (-SP1):</strong> Pressostato digital de vácuo (SMC ZSE10F) para confirmar pega na ventosa.</li>
+                        <li><strong>11. Filtro Regulador:</strong> Unidade de conservação de ar com filtro de condensado e manômetro (SMC AW20).</li>
+                        <li><strong>12. Válvula de Bloqueio:</strong> Válvula de alívio manual com trava para cadeado LOTO (SMC VHS20).</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_estoque_traseiro">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 7.1.2: Compartimento Traseiro Numerado (1 a 12)</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 2) / Manual do Usuário (Pág. 43)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Compartimento Traseiro Estoque">
+                    </div>
+                </div>
+
+                <div id="est-4" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-bolt"></i> 7.1.3 Painel Elétrico Interno — Bancada Estoque</div>
+                        <span class="tag">Itens 1 a 11 do Manual</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Relés de Interface:</strong> 5 acopladores ópticos (-OP1 a -OP5: RIF-0-OPT) para as válvulas e 2 relés eletromecânicos (-RA1 e -RA2) para os motores das esteiras.</li>
+                        <li><strong>2. Relé de Segurança (-RS1):</strong> Módulo Schneider XPSBAC14AP para monitoramento do circuito de emergência.</li>
+                        <li><strong>3. Disjuntores de Proteção:</strong> 2 disjuntores bipolares C10A (-Q1, -Q2) e 1 interruptor DR 25A 30mA (-DR1).</li>
+                        <li><strong>4. Fonte Chaveada 24Vcc (-U1):</strong> Fonte industrial Siemens SITOP (120/230VCA para 24VCC 10A).</li>
+                        <li><strong>5. Distribuidor Alimentação 24Vcc (-D1, -D2):</strong> Blocos distribuidores PTFIX para positivo (+) e negativo (-).</li>
+                        <li><strong>6. Drive Eixo dos Atuadores Elétricos (-U2, -U3):</strong> 2 controladores SMC JXCP18-BC (Vertical e Giro).</li>
+                        <li><strong>7. CLP Siemens S7-1200 (-A1 + -A3):</strong> CPU 1215C DC/DC/DC com módulo mestre IO-Link SM 1278 de 4 portas.</li>
+                        <li><strong>8. Contator Tripolar (-KS1, -KS2):</strong> Par de contatores 24VCC (LC1D09BD) em redundância de segurança.</li>
+                        <li><strong>9. Switch Ethernet 5 Portas (-A2):</strong> Switch não gerenciável Siemens SCALANCE XB005.</li>
+                        <li><strong>10. Multimedidor Smart Sense (-P1):</strong> Medidor IoT de grandezas elétricas e pneumáticas.</li>
+                        <li><strong>11. Client Wi-Fi:</strong> Tomada interna (-TM3) com repetidor wireless Intelbras IWE3000.</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_estoque_painel">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 7.1.3: Layout do Painel Elétrico Estoque (1 a 11)</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 2) / Manual do Usuário (Pág. 43 e 66)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Painel Elétrico Estoque">
+                    </div>
+                </div>
+
+                <div id="est-5" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-table-list"></i> 7.1.4 Tabela de Comissionamento de I/Os — Estoque</div>
+                        <span class="tag">CLP S7-1200</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr><th>Tipo</th><th>Descrição</th><th>Canal do CLP</th><th>Endereço Software</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="tag">IO-Link</span></td><td>Antena RFID</td><td>C/Q1</td><td><span class="code-pill">Mestre IO-Link</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Emergência OK</td><td>Ia1</td><td><span class="code-pill">%I0.1</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Alimentador Avançado</td><td>Ia2</td><td><span class="code-pill">%I0.2</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Alimentador em posição de entrega</td><td>Ia3</td><td><span class="code-pill">%I0.3</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Alimentador Recuado</td><td>Ia4</td><td><span class="code-pill">%I0.4</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Garra Aberta</td><td>Ia5</td><td><span class="code-pill">%I0.5</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Garra Fechada</td><td>Ia6</td><td><span class="code-pill">%I0.6</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Posicionador Avançado</td><td>Ia7</td><td><span class="code-pill">%I0.7</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Posicionador Recuado</td><td>Ib0</td><td><span class="code-pill">%I1.0</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Vacuostato</td><td>Ib1</td><td><span class="code-pill">%I1.1</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Comutador 2 Posições</td><td>Ib2</td><td><span class="code-pill">%I1.2</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Botão Start</td><td>Ib3</td><td><span class="code-pill">%I1.3</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Botão Stop</td><td>Ib4</td><td><span class="code-pill">%I1.4</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Avança Alimentador</td><td>Qa0</td><td><span class="code-pill">%Q0.0</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Recua Alimentador</td><td>Qa1</td><td><span class="code-pill">%Q0.1</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona Vácuo</td><td>Qa2</td><td><span class="code-pill">%Q0.2</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Avança Cilindro Posicionador</td><td>Qa3</td><td><span class="code-pill">%Q0.3</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Fecha Garra</td><td>Qa4</td><td><span class="code-pill">%Q0.4</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona motor esteira 1 e giro</td><td>Qa5</td><td><span class="code-pill">%Q0.5</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona motor esteira 2</td><td>Qa6</td><td><span class="code-pill">%Q0.6</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona válvula 1 do Stopper</td><td>Qa7</td><td><span class="code-pill">%Q0.7</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona válvula 2 do Stopper</td><td>Qb0</td><td><span class="code-pill">%Q1.0</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Status Processo do Smart Sense</td><td>Qb1</td><td><span class="code-pill">%Q1.1</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         ETAPA 5: ESTAÇÃO 2 — BANCADA PROCESSO
+         ===================================================================== -->
+    <div id="etapa-5" class="tab-pane">
+        <div class="workspace">
+            <!-- MENU LATERAL DA ESTAÇÃO PROCESSO -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-gears"></i> Estação Processo</div>
+                <button class="item-btn active" onclick="openItem(event, 'prc-1')">
+                    <span><i class="fa-solid fa-circle-info item-icon"></i> O que é e Como Funciona</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'prc-2')">
+                    <span><i class="fa-solid fa-compass-drafting item-icon"></i> 7.2.1 Elementos da Bancada</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'prc-3')">
+                    <span><i class="fa-solid fa-wind item-icon"></i> 7.2.2 Compartimento Traseiro</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'prc-4')">
+                    <span><i class="fa-solid fa-bolt item-icon"></i> 7.2.3 Painel Elétrico</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'prc-5')">
+                    <span><i class="fa-solid fa-table-list item-icon"></i> 7.2.4 Tabela de I/Os (S7-1200)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DA ESTAÇÃO PROCESSO -->
+            <div class="stage-panel">
+                <div id="prc-1" class="item-detail active">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-gears"></i> Bancada Processo — Conceito e Funcionamento</div>
+                        <span class="tag">Laminação & Gravação Cartesiana</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Segunda estação da linha ($600 \times 1620 \times 980\text{ mm}$), responsável pela seleção das lâminas de acabamento em 6 cores disponíveis (<strong>azul, vermelho, branco, preto, amarelo e verde</strong>) e pela gravação/desenho da superfície conforme o pedido do cliente.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">1) Os atuadores elétricos lineares <strong>Eixo X (<code>LEFS16RB-400</code>)</strong> e <strong>Eixo Y (<code>LEYG16MB-150</code>)</strong> posicionam o cabeçote sobre o magazine da cor de lâmina solicitada.<br>
+                        2) O cilindro pneumático <strong>Eixo Z (<code>CD85N12-100-B</code>)</strong> avança, a ventosa do manipulador captura a lâmina por vácuo (confirmado pelo vacuostato -SP1) e a transporta até a <strong>Base para Gravação</strong>.<br>
+                        3) Na base de gravação, um segundo circuito de vácuo (-Y3, monitorado pelo vacuostato -SP2) succiona a lâmina por baixo através de 2 ventosas de 10mm para mantê-la imóvel.<br>
+                        4) O manipulador realiza o percurso interpolado X-Y gravando a figura escolhida na Loja Virtual e disponibiliza a lâmina para o robô da estação seguinte.</p>
+                    </div>
+                </div>
+
+                <div id="prc-2" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-compass-drafting"></i> 7.2.1 Elementos Superiores da Bancada Processo</div>
+                        <span class="tag">Itens 1 a 7 do Manual</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Esteiras:</strong> Esteiras duplas de 600mm para passagem dos SmartBlocks entre o Estoque e a Montagem.</li>
+                        <li><strong>2. Conexão Elétrica Esteiras:</strong> Conectores industriais no tampo para alimentação dos motores 24 VCC.</li>
+                        <li><strong>3. Atuador Elétrico Eixo X:</strong> Guia linear de 540mm com fuso elétrico SMC <code>LEFS16RB-400</code> (400mm, 30W).</li>
+                        <li><strong>4. Atuador Elétrico Eixo Y:</strong> Atuador linear com guia integrada SMC <code>LEYG16MB-150</code> (30W).</li>
+                        <li><strong>5. Atuador Pneumático Eixo Z:</strong> Cilindro mini ISO 12x100mm com guia linear de buchas, ventosa de 25mm e suporte de caneta gravadora.</li>
+                        <li><strong>6. Magazine das Lâminas:</strong> Suporte compartimentado para armazenar pilhas de lâminas nas 6 cores.</li>
+                        <li><strong>7. Base para Gravação das Lâminas:</strong> Mesa usinada com manifold de vácuo (2 ventosas ZPT10BN-A5) onde a lâmina é fixada para receber o desenho.</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_processo_3d">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 7.2.1: Vista Superior Numerada da Bancada Processo (1 a 7)</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 4) / Manual do Usuário (Pág. 45)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Bancada Processo">
+                    </div>
+                </div>
+
+                <div id="prc-3" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-wind"></i> 7.2.2 Compartimento Traseiro — Bancada Processo</div>
+                        <span class="tag">Duplo Circuito de Vácuo</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1 a 7. Infraestrutura Padrão:</strong> Entrada/Saída de ar comprimido 6mm, Entrada/Saída elétrica (-TM1/-TM2), Seccionadora Geral -Q0, Porta RJ-45 e Válvula Manual.</li>
+                        <li><strong>8. Válvulas:</strong> Bloco manifold com 3 válvulas solenoides SMC <code>SY5120-5DZ-01</code> (-Y1 Avança Eixo Z, -Y2 Vácuo Manipulador e -Y3 Vácuo Mesa de Gravação).</li>
+                        <li><strong>9. Geradores de Vácuo:</strong> <strong>2 unidades</strong> de ejetores SMC <code>ZU07S</code> (um para a ventosa móvel e outro para a mesa de gravação).</li>
+                        <li><strong>10. Vacuostatos:</strong> <strong>2 unidades</strong> de sensores digitais SMC <code>ZSE10F</code> (-SP1 para o manipulador e -SP2 para a base de gravação).</li>
+                        <li><strong>11 e 12. Tratamento de Ar:</strong> Filtro Regulador (AW20) e Válvula de Bloqueio de segurança (VHS20).</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_processo_painel">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 7.2.2 e 7.2.3: Compartimento Traseiro e Painel Elétrico Processo</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 5) / Manual do Usuário (Pág. 46)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Painel Processo">
+                    </div>
+                </div>
+
+                <div id="prc-4" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-bolt"></i> 7.2.3 Painel Elétrico Interno — Bancada Processo</div>
+                        <span class="tag">Itens 1 a 11 do Manual</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Relés de Interface:</strong> 3 relés ópticos (-OP1 a -OP3) para as válvulas solenoides e 2 relés (-RA1, -RA2) para as esteiras.</li>
+                        <li><strong>2 e 3. Segurança e Proteção:</strong> Relé de Segurança XPSBAC14AP (-RS1), disjuntores C10A (-Q1, -Q2) e DR 25A (-DR1).</li>
+                        <li><strong>4 e 5. Energia 24 VCC:</strong> Fonte SITOP 10A (-U1) e distribuidores PTFIX (-D1, -D2).</li>
+                        <li><strong>6. Drivers dos Atuadores (-U2, -U3):</strong> 2 controladores SMC JXCP18-BC (Eixo X Horizontal e Eixo Y Transversal).</li>
+                        <li><strong>7. CLP Siemens S7-1200 (-A1):</strong> CPU 1215C DC/DC/DC.</li>
+                        <li><strong>8 a 11. Potência e Rede:</strong> Contatores -KS1/-KS2, Switch SCALANCE 5 portas (-A2), Multimedidor Smart Sense (-P1) e Repetidor Wi-Fi IWE3000.</li>
+                    </ul>
+                </div>
+
+                <div id="prc-5" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-table-list"></i> 7.2.4 Tabela de Comissionamento de I/Os — Processo</div>
+                        <span class="tag">CLP S7-1200</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr><th>Tipo</th><th>Descrição</th><th>Canal do CLP</th><th>Endereço Software</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Entrada CLP</td><td>Emergência</td><td>Ia1</td><td><span class="code-pill">%I0.1</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Eixo Z Avançado</td><td>Ia2</td><td><span class="code-pill">%I0.2</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Eixo Z Recuado</td><td>Ia3</td><td><span class="code-pill">%I0.3</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Vacuostato Manipulador</td><td>Ia4</td><td><span class="code-pill">%I0.4</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Vacuostato base de gravação</td><td>Ia5</td><td><span class="code-pill">%I0.5</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Comutador 2 Posições</td><td>Ia6</td><td><span class="code-pill">%I0.6</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Botão Start</td><td>Ia7</td><td><span class="code-pill">%I0.7</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Botão Stop</td><td>Ib0</td><td><span class="code-pill">%I1.0</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Avança Eixo Z</td><td>Qa0</td><td><span class="code-pill">%Q0.0</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona Vácuo Manipulador</td><td>Qa1</td><td><span class="code-pill">%Q0.1</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona Vácuo base de gravação</td><td>Qa2</td><td><span class="code-pill">%Q0.2</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona motor esteira 1 e giro</td><td>Qa3</td><td><span class="code-pill">%Q0.3</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona motor esteira 2</td><td>Qa4</td><td><span class="code-pill">%Q0.4</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Status Processo ao Smart Sense</td><td>Qb1</td><td><span class="code-pill">%Q1.1</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         ETAPA 6: ESTAÇÃO 3 — BANCADA MONTAGEM
+         ===================================================================== -->
+    <div id="etapa-6" class="tab-pane">
+        <div class="workspace">
+            <!-- MENU LATERAL DA ESTAÇÃO MONTAGEM -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-robot"></i> Estação Montagem</div>
+                <button class="item-btn active" onclick="openItem(event, 'mnt-1')">
+                    <span><i class="fa-solid fa-circle-info item-icon"></i> O que é e Como Funciona</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'mnt-2')">
+                    <span><i class="fa-solid fa-robot item-icon"></i> 7.3.1 Elementos & Robô UR3e</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'mnt-3')">
+                    <span><i class="fa-solid fa-wind item-icon"></i> 7.3.2 Compartimento Traseiro</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'mnt-4')">
+                    <span><i class="fa-solid fa-bolt item-icon"></i> 7.3.3 Painel Elétrico (S7-1500)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'mnt-5')">
+                    <span><i class="fa-solid fa-table-list item-icon"></i> 7.3.4 Tabela IO-Link & I/Os</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DA ESTAÇÃO MONTAGEM -->
+            <div class="stage-panel">
+                <div id="mnt-1" class="item-detail active">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-robot"></i> Bancada Montagem — Conceito e Funcionamento</div>
+                        <span class="tag">Largura: 900mm | Peso: 170kg</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Terceira estação da linha, responsável por unir os SmartBlocks base com as lâminas gravadas, realizar o empilhamento de múltiplos andares, inserir a tampa de fechamento e executar o controle de qualidade visual.</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">1) Toda a instrumentação de campo desta bancada é descentralizada via protocolo <strong>IO-Link</strong> gerenciado por um CLP de alto desempenho <strong>Siemens S7-1500</strong>.<br>
+                        2) Quando o bloco chega pela esteira e é identificado no Stopper RFID, a <strong>Base de Translado</strong> (cilindro sem haste com ventosa) retira o bloco da esteira.<br>
+                        3) O <strong>Robô Colaborativo UR3e</strong> utiliza sua garra mecatrônica IO-Link (<strong>Schunk EGH80</strong>) para posicionar o bloco no berço de montagem, encaixar as lâminas laterais, empilhar novos blocos vindos da rampa alimentadora e colocar a tampa.<br>
+                        4) O <strong>Sistema de Visão (SensoPart / MVISIA)</strong> captura a imagem do produto montado para validar cores e desenhos antes do envio à Expedição.</p>
+                    </div>
+                </div>
+
+                <div id="mnt-2" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-robot"></i> 7.3.1 Elementos da Bancada e Robô Colaborativo UR3e</div>
+                        <span class="tag">Itens 1 a 8 do Manual</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1 e 2. Esteiras (900mm) e Conexões Elétricas:</strong> Transporte longitudinal de peças com Stopper RFID.</li>
+                        <li><strong>3. Rampa Alimentadora de SmartBlock:</strong> Calha inclinada com sensor óptico <code>SensoPart FT 25-RLH-PS-K4</code> para fornecimento de blocos extras.</li>
+                        <li><strong>4. Magazine de Tampa e Base de Montagem:</strong> Torre acrílica para tampas pretas e plataforma com 3 berços (cases) para montagem.</li>
+                        <li><strong>5. Robô Colaborativo UR3e:</strong> Peso $11,2\text{ kg}$, Carga Útil $3\text{ kg}$, Raio $500\text{ mm}$, Base $\varnothing 128\text{ mm}$ e $360^\circ$ de liberdade (atenção ao cabo PP no último eixo).</li>
+                        <li><strong>6. Garra Colaborativa:</strong> Garra elétrica paralela inteligente <code>Schunk EGH 80-IOL-N-UREK</code> com controle de abertura e força via IO-Link.</li>
+                        <li><strong>7. Sistema de Visão:</strong> Câmera industrial <code>SensoPart VISOR / MVISIA</code> fixada em coluna sobre a área de montagem.</li>
+                        <li><strong>8. Base de Translado da Esteira:</strong> Cilindro pneumático sem haste de 250mm (<code>MY1B</code>) com ventosa para retirar/devolver blocos na esteira.</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_montagem_3d">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 7.3.1: Vista Superior Numerada da Bancada Montagem (1 a 8)</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 7) / Manual do Usuário (Pág. 48)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Bancada Montagem">
+                    </div>
+                </div>
+
+                <div id="mnt-3" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-wind"></i> 7.3.2 Compartimento Traseiro — Bancada Montagem</div>
+                        <span class="tag">Pneumática IO-Link</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1 a 7 e 13. Conexões Traseiras:</strong> Entradas/Saídas de ar e energia, Seccionadora -Q0 e 4 conectores RJ-45 externos (-RJ2, -RJ4, -RJ5, -RJ6).</li>
+                        <li><strong>8. Válvulas (Ilha IO-Link):</strong> Unidade controladora IO-Link <strong>SMC EX260 (-A10)</strong> comandando válvulas solenoides série VQC (Avança/Recua Alimentador e Aciona Vácuo).</li>
+                        <li><strong>9. Gerador de Vácuo:</strong> Ejetor Venturi SMC ZU07S.</li>
+                        <li><strong>10. Vacuostato IO-Link (-SP1):</strong> Vacuostato digital de alta precisão <strong>SMC ZSE20BF-L</strong> com comunicação direta IO-Link.</li>
+                        <li><strong>11 e 12. Tratamento de Ar:</strong> Filtro Regulador (AW20) e Válvula de Bloqueio (VHS20).</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_montagem_painel">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 7.3.2 e 7.3.3: Compartimento Traseiro e Painel Elétrico Montagem</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 8) / Manual do Usuário (Pág. 49)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Painel Montagem">
+                    </div>
+                </div>
+
+                <div id="mnt-4" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-bolt"></i> 7.3.3 Painel Elétrico Interno — Bancada Montagem</div>
+                        <span class="tag">Siemens S7-1500 + Turck FEN20</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1, 2, 3 e 8. Comando e Segurança:</strong> Relés das esteiras (-RA1, -RA2), Relé de Segurança XPSBAC14AP (-RS1), Disjuntores (-Q1, -Q2, -Q3 para o controlador do robô e -DR1) e Contatores (-KS1, -KS2).</li>
+                        <li><strong>4 e 5. Fonte 24VCC:</strong> Fonte SITOP 10A (-U1) e distribuidores (-D1, -D2).</li>
+                        <li><strong>6. CLP Principal (-A1 + -A2):</strong> <strong>Siemens SIMATIC S7-1500 (ET200SP CPU 1512SP-1 PN)</strong> equipado com módulos DI, DQ e módulo mestre IO-Link de 4 canais (<code>6ES7547-1JF00-0AB0</code>) [nota: no texto descritivo da pág. 49 consta erro de digitação "S7-1200", mas a tabela 7.3.4 e o esquema elétrico da folha 4 confirmam o S7-1500].</li>
+                        <li><strong>7. Interface IO-Link Garra Colaborativa (-A7):</strong> Módulo mestre multiprotocolo Ethernet/IO-Link <strong>Turck FEN20-4IOL</strong> (vermelho) dedicado à garra Schunk EGH80.</li>
+                        <li><strong>9 e 10. Rede e Telemetria:</strong> Switch SCALANCE 5 portas (-A4), Roteador Wi-Fi AC750 (-A9) e Multimedidor Smart Sense (-P1).</li>
+                    </ul>
+                </div>
+
+                <div id="mnt-5" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-table-list"></i> 7.3.4 Tabela de Comissionamento — Montagem (S7-1500)</div>
+                        <span class="tag">Arquitetura 100% IO-Link</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr><th>Tipo</th><th>Descrição</th><th>Canal do CLP</th><th>Endereço / Observação</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="tag">IO-Link</span></td><td>Antena RFID (RF210R)</td><td>C/Q1</td><td><span class="code-pill">Canal 1 do Mestre IO-Link</span></td></tr>
+                            <tr><td><span class="tag">IO-Link</span></td><td>Remota de Campo (Hub ME59402 -A8)</td><td>C/Q2</td><td><span class="code-pill">Lê sensores SM1..SM4, Botoeira e aciona Stopper/Esteiras</span></td></tr>
+                            <tr><td><span class="tag">IO-Link</span></td><td>Vacuostato Digital (ZSE20BF-L)</td><td>C/Q3</td><td><span class="code-pill">Canal 3 do Mestre IO-Link</span></td></tr>
+                            <tr><td><span class="tag">IO-Link</span></td><td>Bloco de Válvulas (SMC EX260 -A10)</td><td>C/Q4</td><td><span class="code-pill">Comanda válvulas Y1, Y2 e Y3</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Emergência</td><td>DI1 (X11)</td><td><span class="code-pill">%I0.1</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Status Processo ao Smart Sense</td><td>DQ1 / DQ0 (X12)</td><td><span class="code-pill">%Q0.0</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         ETAPA 7: ESTAÇÃO 4 — BANCADA EXPEDIÇÃO
+         ===================================================================== -->
+    <div id="etapa-7" class="tab-pane">
+        <div class="workspace">
+            <!-- MENU LATERAL DA ESTAÇÃO EXPEDIÇÃO -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-truck-ramp-box"></i> Estação Expedição</div>
+                <button class="item-btn active" onclick="openItem(event, 'exp-1')">
+                    <span><i class="fa-solid fa-circle-info item-icon"></i> O que é e Como Funciona</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'exp-2')">
+                    <span><i class="fa-solid fa-boxes-packing item-icon"></i> 7.4.1 Elementos da Bancada</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'exp-3')">
+                    <span><i class="fa-solid fa-wind item-icon"></i> 7.4.2 Compartimento Traseiro</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'exp-4')">
+                    <span><i class="fa-solid fa-bolt item-icon"></i> 7.4.3 Painel Elétrico (3 Drivers)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'exp-5')">
+                    <span><i class="fa-solid fa-table-list item-icon"></i> 7.4.4 Tabela de I/Os (S7-1200)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DA ESTAÇÃO EXPEDIÇÃO -->
+            <div class="stage-panel">
+                <div id="exp-1" class="item-detail active">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-truck-ramp-box"></i> Bancada Expedição — Conceito e Funcionamento</div>
+                        <span class="tag">Capacidade: 12 SmartBlocks Prontos</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é?</span>
+                        <p class="explain-text">Quarta e última estação da Smart 4.0 ($600 \times 1620 \times 980\text{ mm}$), encarregada de receber os produtos finalizados pela Montagem, registrar a conclusão da Ordem de Produção via RFID e armazená-los na estante de expedição de 3 andares (12 posições).</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Como funciona?</span>
+                        <p class="explain-text">1) O SmartBlock finalizado para no Stopper, onde a antena <strong>RFID RF210R</strong> lê a tag e confirma a baixa da OP.<br>
+                        2) O manipulador de 3 graus de liberdade elétricos — acionado por <strong>3 Drivers SMC JXCP18-BC (-U2 Horizontal 400mm, -U3 Vertical 300mm e -U4 Rotativo)</strong> — posiciona a plataforma coletora.<br>
+                        3) O cilindro pneumático do manipulador (-Y1: $\varnothing 10\times100\text{ mm}$) avança, a ventosa aciona o vácuo (-Y2, monitorado pelo vacuostato -SP1) para erguer o produto e o manipulador o guarda na baia livre da prateleira de produtos acabados.</p>
+                    </div>
+                </div>
+
+                <div id="exp-2" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-boxes-packing"></i> 7.4.1 Elementos Superiores da Bancada Expedição</div>
+                        <span class="tag">Itens 1 a 8 do Manual</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Esteira:</strong> Esteira dupla de 600mm para chegada de produtos prontos e retorno de vazios.</li>
+                        <li><strong>2. Stopper:</strong> Conjunto pneumático de parada com leitor RFID RF210R.</li>
+                        <li><strong>3. Esteira de Giro:</strong> Curva de retorno posicionada na extremidade direita da bancada.</li>
+                        <li><strong>4. Conexão Elétrica Esteiras:</strong> Conectores multipolares de alimentação dos motorredutores.</li>
+                        <li><strong>5. Atuador Elétrico Eixo X:</strong> Eixo linear horizontal SMC <code>LEFS16RB-400</code> (curso de 400mm, 30W).</li>
+                        <li><strong>6. Atuador Elétrico Eixo Y:</strong> Coluna linear vertical SMC <code>LEFS16B-300</code> (curso de 300mm, 30W).</li>
+                        <li><strong>7. Atuador Elétrico Giro:</strong> Base rotativa SMC <code>LERH50K</code> (10 N.m) acoplada entre o carro horizontal e a coluna vertical.</li>
+                        <li><strong>8. Prateleira de Produtos Finalizados:</strong> Estante reta de 3 andares com 4 posições por andar (total de 12 produtos acabados).</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_expedicao_3d">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figura 7.4.1: Vista Superior Numerada da Bancada Expedição (1 a 8)</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 10) / Manual do Usuário (Pág. 51)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Bancada Expedição">
+                    </div>
+                </div>
+
+                <div id="exp-3" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-wind"></i> 7.4.2 Compartimento Traseiro — Bancada Expedição</div>
+                        <span class="tag">Itens 1 a 12 do Manual</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1 a 7. Conexões Padrão:</strong> Entrada/Saída de ar 6mm, Entrada/Saída de energia (-TM1/-TM2), Seccionadora -Q0, Porta RJ-45 e Válvula Manual.</li>
+                        <li><strong>8. Válvulas:</strong> Sub-base manifold com 2 válvulas solenoides SMC <code>SY5120-5DZ-01</code> (-Y1 Avança Cilindro Alimentador/Manipulador e -Y2 Aciona Vácuo).</li>
+                        <li><strong>9 e 10. Circuito de Vácuo:</strong> 1 Gerador de vácuo Venturi (ZU07S) e 1 Vacuostato digital (-SP1: ZSE10F).</li>
+                        <li><strong>11 e 12. Conservação e Bloqueio:</strong> Filtro Regulador (AW20) e Válvula de bloqueio LOTO (VHS20).</li>
+                    </ul>
+                    <div class="img-slot" onclick="triggerImageUpload(this)" data-slot-id="img_expedicao_painel">
+                        <div class="placeholder-info">
+                            <i class="fa-regular fa-image"></i>
+                            <div class="placeholder-title">Figuras 7.4.2 e 7.4.3: Compartimento Traseiro e Painel Elétrico Expedição</div>
+                            <div class="placeholder-ref">Fonte: Componentes.pdf (Pág. 11) / Manual do Usuário (Pág. 52 e 114)</div>
+                            <span class="placeholder-hint">Clique aqui para carregar a imagem do seu computador</span>
+                        </div>
+                        <img src="" alt="Painel Expedição">
+                    </div>
+                </div>
+
+                <div id="exp-4" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-bolt"></i> 7.4.3 Painel Elétrico Interno — Bancada Expedição</div>
+                        <span class="tag">3 Drivers SMC JXCP18-BC</span>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Relés de Interface:</strong> 2 acopladores ópticos (-OP1 e -OP2) e 2 relés de esteira (-RA1 e -RA2).</li>
+                        <li><strong>2, 3, 4, 5 e 8. Proteção e Força:</strong> Relé de Segurança XPSBAC14AP (-RS1), Disjuntores (-Q1, -Q2, -DR1), Fonte SITOP 24VCC 10A (-U1), Distribuidores (-D1, -D2) e Contatores (-KS1, -KS2).</li>
+                        <li><strong>6. Drivers dos Atuadores Elétricos (-U2, -U3 e -U4):</strong> A Expedição possui <strong>3 drivers SMC JXCP18-BC</strong> em série na rede Profinet (Horizontal, Vertical e Rotativo), conforme Folhas 5 e 12 do esquema elétrico da Expedição.</li>
+                        <li><strong>7, 9, 10 e 11. Controle e Rede:</strong> CLP Siemens S7-1200 (CPU 1215C + Mestre IO-Link SM 1278), Switch SCALANCE 5 portas (-A2), Multimedidor Smart Sense (-P1) e Repetidor Wi-Fi IWE3000.</li>
+                    </ul>
+                </div>
+
+                <div id="exp-5" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-table-list"></i> 7.4.4 Tabela de Comissionamento de I/Os — Expedição</div>
+                        <span class="tag">CLP S7-1200</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr><th>Tipo</th><th>Descrição</th><th>Canal do CLP</th><th>Endereço Software</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="tag">IO-Link</span></td><td>Antena RFID</td><td>C/Q1</td><td><span class="code-pill">Mestre IO-Link</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Emergência</td><td>Ia1</td><td><span class="code-pill">%I0.1</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Alimentador Avançado</td><td>Ia2</td><td><span class="code-pill">%I0.2</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Alimentador Recuado</td><td>Ia3</td><td><span class="code-pill">%I0.3</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Vacuostato</td><td>Ia4</td><td><span class="code-pill">%I0.4</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Comutador 2 Posições</td><td>Ia5</td><td><span class="code-pill">%I0.5</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Botão Start</td><td>Ia6</td><td><span class="code-pill">%I0.6</span></td></tr>
+                            <tr><td>Entrada CLP</td><td>Botão Stop</td><td>Ia7</td><td><span class="code-pill">%I0.7</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Avança Alimentador</td><td>Qa0</td><td><span class="code-pill">%Q0.0</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona Vácuo</td><td>Qa1</td><td><span class="code-pill">%Q0.1</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona motor esteira 1 e giro</td><td>Qa2</td><td><span class="code-pill">%Q0.2</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona motor esteira 2</td><td>Qa3</td><td><span class="code-pill">%Q0.3</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona válvula 1 do Stopper</td><td>Qa4</td><td><span class="code-pill">%Q0.4</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Aciona válvula 2 do Stopper</td><td>Qa5</td><td><span class="code-pill">%Q0.5</span></td></tr>
+                            <tr><td>Saída CLP</td><td>Status Processo ao Smart Sense</td><td>Qb1</td><td><span class="code-pill">%Q1.1</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- =====================================================================
+         ETAPA 8: PROVAS PRÁTICAS & AVALIAÇÕES (A, B, C e D)
+         ===================================================================== -->
+    <div id="etapa-8" class="tab-pane">
+        <div class="workspace">
+            <!-- MENU LATERAL DA ETAPA 8 -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-clipboard-check"></i> Selecione a Prova</div>
+                <button class="item-btn active" onclick="openItem(event, 'ava-a')">
+                    <span><i class="fa-solid fa-vr-cardboard item-icon"></i> Avaliação A: Gêmeo Digital & Relatórios</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'ava-b')">
+                    <span><i class="fa-solid fa-sack-dollar item-icon"></i> Avaliação B: Custos Node-RED & Triagem</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'ava-c')">
+                    <span><i class="fa-solid fa-camera item-icon"></i> Avaliação C: Visão & Realidade Aumentada</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="openItem(event, 'ava-d')">
+                    <span><i class="fa-solid fa-triangle-exclamation item-icon"></i> Avaliação D: Diagnóstico de Falhas</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DE CONTEÚDO DA ETAPA 8 -->
+            <div class="stage-panel">
+                
+                <!-- ==================== AVALIAÇÃO A ==================== -->
+                <div id="ava-a" class="item-detail active">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-vr-cardboard"></i> Avaliação A — Gêmeo Digital e Geração de Relatórios</div>
+                        <span class="tag">Simulação & IHM Expedição</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é avaliado nesta prova?</span>
+                        <p class="explain-text">Valida a sincronização do <strong>Gêmeo Digital (Simulador 3D)</strong> com a planta e o controle condicional de gravação de logs/relatórios em arquivo de texto (<code>pedidos.txt</code>) comandado pela IHM da bancada de Expedição[cite: 280].</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-list-ol"></i> Roteiro de Execução Passo a Passo</span>
+                        <p class="explain-text">Siga rigorosamente a sequência abaixo para aplicar a Avaliação A aos competidores/alunos[cite: 280]:</p>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Configuração do Gêmeo Digital:</strong> Solicitar para os competidores abrirem e configurarem a comunicação do software de Gêmeo Digital[cite: 280].</li>
+                        <li><strong>2. Limpeza de Histórico:</strong> Excluir o arquivo <code>pedidos.txt</code> do diretório para iniciar o teste sem registros anteriores[cite: 280].</li>
+                        <li><strong>3. Habilitar Registro:</strong> Ativar a função <strong>"Gerar Relatório"</strong> diretamente na tela da <strong>IHM da Expedição</strong>[cite: 280].</li>
+                        <li><strong>4. Execução de Lote (Com Relatório Ativo):</strong> Realizar <strong>3 pedidos</strong> sequenciais com as seguintes cores de peça base[cite: 280]:
+                            <span class="code-pill">1º Azul</span> <span class="code-pill">2º Vermelha</span> <span class="code-pill">3º Preta</span>[cite: 280]
+                        </li>
+                        <li><strong>5. Bloqueio de Registro:</strong> Desativar a opção <strong>"Gerar Relatório"</strong> na IHM da Expedição[cite: 280].</li>
+                        <li><strong>6. Teste de Validação (Sem Relatório):</strong> Realizar <strong>1 pedido</strong> adicional de peça <span class="code-pill">Vermelha</span> (este pedido deve ser produzido fisicamente/virtualmente, mas <strong>não</strong> deve ser gravado no arquivo <code>pedidos.txt</code>)[cite: 280].</li>
+                    </ul>
+                </div>
+
+                <!-- ==================== AVALIAÇÃO B ==================== -->
+                <div id="ava-b" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-sack-dollar"></i> Avaliação B — Precificação Node-RED, Pedido 3 Andares e Rejeito</div>
+                        <span class="tag">Node-RED | R$ 28,40 | Fluxo de Esteira</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é avaliado nesta prova?</span>
+                        <p class="explain-text">Testa a lógica de precificação dinâmica no dashboard do <strong>Node-RED</strong>, o cálculo de custo total de um pedido complexo de 3 andares (totalizando exatos <strong>R$ 28,40</strong>), a rejeição de lâminas intrusas no magazine e o controle de tráfego/desvio de peças não pertencentes à Ordem de Produção nas esteiras[cite: 281].</p>
+                    </div>
+
+                    <div class="grid-2">
+                        <div>
+                            <h4 style="color: var(--accent-cyan); margin-bottom: 8px; font-size: 0.95rem;"><i class="fa-solid fa-tags"></i> 1. Tabela de Preços no Node-RED</h4>
+                            <table>
+                                <thead>
+                                    <tr><th>Item / Matéria-Prima</th><th>Valor Configurado</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><strong>Peça Azul (Bloco)</strong></td><td><span class="code-pill">R$ 5,00</span>[cite: 281]</td></tr>
+                                    <tr><td><strong>Peça Vermelha (Bloco)</strong></td><td><span class="code-pill">R$ 5,50</span>[cite: 281]</td></tr>
+                                    <tr><td><strong>Peça Preta (Bloco)</strong></td><td><span class="code-pill">R$ 4,00</span>[cite: 281]</td></tr>
+                                    <tr><td>Lâmina Azul</td><td><span class="code-pill">R$ 1,40</span>[cite: 281]</td></tr>
+                                    <tr><td>Lâmina Vermelha</td><td><span class="code-pill">R$ 1,80</span>[cite: 281]</td></tr>
+                                    <tr><td>Lâmina Amarela</td><td><span class="code-pill">R$ 1,65</span>[cite: 281]</td></tr>
+                                    <tr><td>Lâmina Verde</td><td><span class="code-pill">R$ 2,10</span>[cite: 281]</td></tr>
+                                    <tr><td>Lâmina Branca</td><td><span class="code-pill">R$ 1,20</span>[cite: 281]</td></tr>
+                                    <tr><td>Lâmina Preta</td><td><span class="code-pill">R$ 1,30</span>[cite: 281]</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <h4 style="color: var(--accent-green); margin-bottom: 8px; font-size: 0.95rem;"><i class="fa-solid fa-layer-group"></i> 2. Estrutura do Pedido (3 Andares = R$ 28,40)</h4>
+                            <table>
+                                <thead>
+                                    <tr><th>Andar</th><th>Cor da Peça</th><th>Lâminas (Esq / Frente / Dir)</th><th>Subtotal</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>1º Andar</strong></td>
+                                        <td>Vermelha (R$ 5,50)[cite: 281]</td>
+                                        <td>Azul (1,40) + Vermelha (1,80) + Azul (1,40)[cite: 281]</td>
+                                        <td><span class="code-pill">R$ 10,10</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>2º Andar</strong></td>
+                                        <td>Preta (R$ 4,00)[cite: 281]</td>
+                                        <td>Branca (1,20) + Preta (1,30) + Branca (1,20)[cite: 281]</td>
+                                        <td><span class="code-pill">R$ 7,70</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>3º Andar</strong></td>
+                                        <td>Vermelha (R$ 5,50)[cite: 281]</td>
+                                        <td>Amarela (1,65) + Vermelha (1,80) + Amarela (1,65)[cite: 281]</td>
+                                        <td><span class="code-pill">R$ 10,60</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="text-align: right; font-weight: 700; color: var(--accent-cyan);">CUSTO TOTAL DO PEDIDO:</td>
+                                        <td><span class="code-pill" style="color: var(--accent-green); font-weight: 800;">R$ 28,40</span>[cite: 281]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="explain-box warn" style="margin-top: 16px;">
+                        <span class="explain-label"><i class="fa-solid fa-gears"></i> Condições de Contorno e Interferências Físicas na Prova B</span>
+                        <p class="explain-text">Siga os passos de perturbação abaixo durante a execução[cite: 281]:</p>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>Teste Inicial de Bloqueio na Esteira:</strong> Colocar <strong>uma peça azul</strong> na esteira antes do pedido; essa peça <strong>não deve entrar</strong> na estação de montagem[cite: 281].</li>
+                        <li><strong>Interferência no Magazine de Lâminas:</strong> Colocar <strong>uma lâmina verde em cima das lâminas azuis</strong> no magazine da estação de Processo (o sistema deve identificar/tratar a lâmina incorreta)[cite: 281].</li>
+                        <li><strong>Disparo do Pedido Triplo:</strong> Fazer o pedido de 3 andares (Vermelha / Preta / Vermelha com suas respectivas lâminas) conferindo o valor de <strong>R$ 28,40</strong>[cite: 281].</li>
+                        <li><strong>Devolução de Peça Não Solicitada:</strong> Durante o processo, a <strong>peça azul deve entrar na montagem e ser devolvida</strong> (rejeitada de volta para a esteira, pois o pedido requer apenas blocos vermelhos e preto)[cite: 281].</li>
+                        <li><strong>Abastecimento na Esteira:</strong> Colocar <strong>duas peças vermelhas e uma preta</strong> na esteira, posicionadas afastadas umas das outras, para suprir a montagem dos 3 andares[cite: 281].</li>
+                    </ul>
+                </div>
+
+                <!-- ==================== AVALIAÇÃO C ==================== -->
+                <div id="ava-c" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-camera"></i> Avaliação C — Detecção de Cores no Estoque e Realidade Aumentada (RA)</div>
+                        <span class="tag">Visão Computacional & App RA</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é avaliado nesta prova?</span>
+                        <p class="explain-text">Avalia a integração entre o <strong>Software de Detecção de Cores</strong> (Visão Computacional) e o aplicativo de <strong>Realidade Aumentada (RA)</strong>. Mesmo que o avaliador troque fisicamente as peças de lugar nas prateleiras do Estoque, o sistema deve reanalisar as cores pelo comando na RA e buscar a peça correta[cite: 282].</p>
+                    </div>
+                    <div class="explain-box how">
+                        <span class="explain-label"><i class="fa-solid fa-list-ol"></i> Roteiro de Execução Passo a Passo</span>
+                        <p class="explain-text">Execute os 5 passos de validação da Avaliação C[cite: 282]:</p>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Verificação do Serviço de Visão:</strong> Verificar se o <strong>software de detecção de cores</strong> está rodando no computador; caso não esteja, abri-lo e iniciá-lo[cite: 282].</li>
+                        <li><strong>2. Embaralhamento Físico:</strong> <strong>Inverter as posições das peças</strong> manualmente nas prateleiras da bancada de Estoque[cite: 282].</li>
+                        <li><strong>3. Navegação por Marcadores RA:</strong> Abrir o <strong>Software de Realidade Aumentada (RA)</strong> e alternar a leitura da câmera entre os diferentes <strong>QRCodes</strong> das bancadas[cite: 282].</li>
+                        <li><strong>4. Atualização de Mapeamento via RA:</strong> Pressionar o botão dentro da interface de <strong>RA para analisar as cores</strong> (atualizando no banco de dados a nova posição real de cada cor após a inversão manual)[cite: 282].</li>
+                        <li><strong>5. Teste de Coleta:</strong> Fazer <strong>1 pedido de 1 andar</strong> com <span class="code-pill">Peça Vermelha</span> e verificar se o manipulador do estoque busca na nova posição correta identificada pela câmera[cite: 282].</li>
+                    </ul>
+                </div>
+
+                <!-- ==================== AVALIAÇÃO D ==================== -->
+                <div id="ava-d" class="item-detail">
+                    <div class="stage-header">
+                        <div class="stage-title"><i class="fa-solid fa-triangle-exclamation"></i> Avaliação D — Simulação de Falhas Eletropneumáticas e Segurança</div>
+                        <span class="tag">Troubleshooting | Processo & Montagem</span>
+                    </div>
+                    <div class="explain-box">
+                        <span class="explain-label"><i class="fa-solid fa-circle-question"></i> O que é avaliado nesta prova?</span>
+                        <p class="explain-text">Verifica a robustez da programação de diagnóstico de falhas (alarmes de timeout de avanço de cilindros, falha de vácuo nos vacuostatos, parada de robô e intertravamento da rampa alimentadora) e a capacidade de retomada segura do sistema após corrigir cada pane[cite: 279].</p>
+                    </div>
+                    <div class="explain-box warn">
+                        <span class="explain-label"><i class="fa-solid fa-screwdriver-wrench"></i> Regra Geral da Avaliação D</span>
+                        <p class="explain-text"><strong>Importante:</strong> Após cada parada provocada pelas falhas abaixo, o avaliador/competidor deve <strong>remover a falha física, rearmar o sistema e testar a próxima condição</strong> sequencialmente[cite: 279].</p>
+                    </div>
+                    <ul class="tech-list">
+                        <li><strong>1. Teste de Montagem via Rampa (Operação Normal):</strong> Colocar <strong>2 peças na rampa alimentadora</strong> da estação de Montagem (<span class="code-pill">Peça Vermelha</span> e <span class="code-pill">Peça Preta</span>) — o robô colaborativo deve montar ambas as peças corretamente[cite: 279].</li>
+                        <li><strong>2. Falha 01 (Parada do Robô):</strong> Colocar o <strong>robô UR3e em modo STOP</strong> e verificar a sinalização/parada segura da célula[cite: 279]. <em>(Remover a falha e testar a próxima)</em>[cite: 279].</li>
+                        <li><strong>3. Falha 02 (Bloqueio Pneumático na Montagem):</strong> <strong>Fechar o regulador de fluxo</strong> de avanço do cilindro alimentador na bancada de <strong>Montagem</strong> (o cilindro não atingirá o sensor de avançado no tempo esperado)[cite: 279]. <em>(Remover a falha e testar a próxima)</em>[cite: 279].</li>
+                        <li><strong>4. Falha 03 (Perda de Vácuo na Montagem):</strong> <strong>Desconectar a mangueira de vácuo</strong> na bancada de <strong>Montagem</strong> (o vacuostato IO-Link detectará ausência de pressão negativa)[cite: 279]. <em>(Remover a falha e testar a próxima)</em>[cite: 279].</li>
+                        <li><strong>5. Falha 04 (Bloqueio Pneumático no Processo):</strong> <strong>Fechar o regulador de fluxo</strong> de avanço do <strong>cilindro Z</strong> na bancada de <strong>Processo</strong> (impedindo a descida do cabeçote até o sensor magnético inferior)[cite: 279]. <em>(Remover a falha e testar a próxima)</em>[cite: 279].</li>
+                        <li><strong>6. Falha 05 (Perda de Vácuo no Processo):</strong> <strong>Desconectar a mangueira de vácuo</strong> na bancada de <strong>Processo</strong>[cite: 279]. <em>(Remover a falha e testar a próxima)</em>[cite: 279].</li>
+                        <li><strong>7. Falha 06 / Teste de Rampa (Peça Azul):</strong> Colocar <strong>uma peça azul na rampa</strong> alimentadora da Montagem e verificar o tratamento lógico configurado para essa condição[cite: 279].</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- =====================================================================
+         ETAPA 9: VISUALIZADOR EMBUTIDO DE MANUAIS E PDFs
+         ===================================================================== -->
+    <div id="etapa-9" class="tab-pane">
+        <div class="workspace">
+            <!-- MENU LATERAL DOS PDFs -->
+            <div class="item-sidebar">
+                <div class="sidebar-header"><i class="fa-solid fa-folder-open"></i> Biblioteca de PDFs</div>
+                
+                <button class="item-btn active" onclick="loadPresetPDF(event, 'MANUAL DO USUÁRIO - XL4002PD00.PT.MU (1).pdf', 'Manual do Usuário Completo (228 págs)', 1)">
+                    <span><i class="fa-solid fa-book item-icon"></i> Manual Completo</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'componentes.pdf', 'Catálogo de Componentes e I/Os (13 págs)', 1)">
+                    <span><i class="fa-solid fa-microchip item-icon"></i> PDF Componentes</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'instalação.pdf', 'Guia de Instalação e Softwares (30 págs)', 1)">
+                    <span><i class="fa-solid fa-screwdriver-wrench item-icon"></i> PDF Instalação</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'Apresentação_TECNICA-XL4002 4.pdf', 'Apresentação Técnica XL4002 (27 págs)', 1)">
+                    <span><i class="fa-solid fa-tv item-icon"></i> Apresentação Técnica</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <div class="sidebar-header" style="margin-top: 14px;"><i class="fa-solid fa-bolt"></i> Atalhos Esquemas Elétricos</div>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'MANUAL DO USUÁRIO - XL4002PD00.PT.MU (1).pdf', 'Esquema Elétrico - Bancada Estoque', 56)">
+                    <span><i class="fa-solid fa-diagram-project item-icon"></i> Elétrica: Estoque (Pág. 56)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'MANUAL DO USUÁRIO - XL4002PD00.PT.MU (1).pdf', 'Esquema Elétrico - Bancada Processo', 71)">
+                    <span><i class="fa-solid fa-diagram-project item-icon"></i> Elétrica: Processo (Pág. 71)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'MANUAL DO USUÁRIO - XL4002PD00.PT.MU (1).pdf', 'Esquema Elétrico - Bancada Montagem', 86)">
+                    <span><i class="fa-solid fa-diagram-project item-icon"></i> Elétrica: Montagem (Pág. 86)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'MANUAL DO USUÁRIO - XL4002PD00.PT.MU (1).pdf', 'Esquema Elétrico - Bancada Expedição', 102)">
+                    <span><i class="fa-solid fa-diagram-project item-icon"></i> Elétrica: Expedição (Pág. 102)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <div class="sidebar-header" style="margin-top: 14px;"><i class="fa-solid fa-clipboard-question"></i> Cadernos de Prova</div>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'Avaliação A.pdf', 'Caderno de Prova - Avaliação A', 1)">
+                    <span><i class="fa-solid fa-file-lines item-icon"></i> PDF Avaliação A</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'Avaliação B.pdf', 'Caderno de Prova - Avaliação B', 1)">
+                    <span><i class="fa-solid fa-file-lines item-icon"></i> PDF Avaliação B</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'Avaliação C.pdf', 'Caderno de Prova - Avaliação C', 1)">
+                    <span><i class="fa-solid fa-file-lines item-icon"></i> PDF Avaliação C</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="item-btn" onclick="loadPresetPDF(event, 'Avaliação D.pdf', 'Caderno de Prova - Avaliação D', 1)">
+                    <span><i class="fa-solid fa-file-lines item-icon"></i> PDF Avaliação D</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- PALCO DO LEITOR DE PDF -->
+            <div class="stage-panel" style="display: flex; flex-direction: column; height: 780px; padding: 20px;">
+                <div class="stage-header" style="margin-bottom: 14px; padding-bottom: 12px;">
+                    <div class="stage-title" style="font-size: 1.25rem;">
+                        <i class="fa-solid fa-file-pdf" style="color: var(--accent-red);"></i>
+                        <span id="pdf-viewer-title">Manual do Usuário Completo (228 págs)</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <label for="localPdfInput" style="background: var(--bg-card-alt); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-upload"></i> Abrir PDF de Outra Pasta
+                        </label>
+                        <input type="file" id="localPdfInput" accept="application/pdf" style="display: none;" onchange="loadCustomPDF(event)">
+                        
+                        <a id="pdf-external-link" href="MANUAL DO USUÁRIO - XL4002PD00.PT.MU (1).pdf" target="_blank" style="background: var(--accent-cyan); color: #060911; padding: 7px 14px; border-radius: 6px; text-decoration: none; font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-up-right-from-square"></i> Tela Cheia
+                        </a>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px; font-family: 'JetBrains Mono', monospace;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--accent-amber);"></i> Dica: Deixe os arquivos PDF na mesma pasta deste arquivo HTML para carregamento automático, ou clique em "Abrir PDF de Outra Pasta".
+                </div>
+
+                <!-- IFRAME DO PDF -->
+                <iframe id="pdf-iframe" src="MANUAL DO USUÁRIO - XL4002PD00.PT.MU (1).pdf#page=1" style="width: 100%; flex: 1; border: 1px solid var(--border-dark); border-radius: 8px; background: #090d16;"></iframe>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- INPUT OCULTO PARA UPLOAD DE IMAGENS PELO USUÁRIO -->
+<input type="file" id="hiddenFileInput" accept="image/*" style="display: none;">
+
+<script>
+    // NÍVEL 1: Alterna entre as Etapas do Topo
+    function openMainTab(evt, tabId) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // NÍVEL 2: Alterna individualmente cada Item/Aba dentro da Etapa atual
+    function openItem(evt, itemId) {
+        const currentWorkspace = evt.currentTarget.closest('.workspace');
+        currentWorkspace.querySelectorAll('.item-detail').forEach(d => d.classList.remove('active'));
+        currentWorkspace.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(itemId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // NÍVEL 3: Alterna os PDFs na Etapa 9 (com suporte a acentos e recarga forçada do iframe)
+    function loadPresetPDF(evt, fileName, titleText, pageNumber) {
+        const workspace = evt.currentTarget.closest('.workspace');
+        if (workspace) {
+            workspace.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
+        }
+        evt.currentTarget.classList.add('active');
+
+        const encodedFile = encodeURI(fileName);
+        const pdfUrl = encodedFile + (pageNumber ? '#page=' + pageNumber : '');
+
+        document.getElementById('pdf-viewer-title').textContent = titleText;
+        document.getElementById('pdf-external-link').href = pdfUrl;
+
+        const oldIframe = document.getElementById('pdf-iframe');
+        const newIframe = oldIframe.cloneNode(true);
+        newIframe.src = pdfUrl;
+        oldIframe.parentNode.replaceChild(newIframe, oldIframe);
+    }
+
+    // Permite selecionar qualquer PDF avulso do computador e exibir na hora
+    function loadCustomPDF(evt) {
+        const file = evt.target.files[0];
+        if (!file) return;
+        const objectUrl = URL.createObjectURL(file);
+
+        document.getElementById('pdf-viewer-title').textContent = file.name;
+        document.getElementById('pdf-external-link').href = objectUrl;
+
+        const oldIframe = document.getElementById('pdf-iframe');
+        const newIframe = oldIframe.cloneNode(true);
+        newIframe.src = objectUrl;
+        oldIframe.parentNode.replaceChild(newIframe, oldIframe);
+    }
+
+    // Sistema de Upload e Persistência de Imagens no Navegador (LocalStorage)
+    let currentSlot = null;
+    const fileInput = document.getElementById('hiddenFileInput');
+
+    function triggerImageUpload(slotElement) {
+        currentSlot = slotElement;
+        fileInput.click();
+    }
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file || !currentSlot) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const base64Data = event.target.result;
+            const imgElement = currentSlot.querySelector('img');
+            imgElement.src = base64Data;
+            currentSlot.classList.add('loaded');
+
+            const slotId = currentSlot.getAttribute('data-slot-id');
+            try {
+                localStorage.setItem('smart40_' + slotId, base64Data);
+            } catch (err) {
+                console.warn('Espaço do navegador cheio para salvar novas imagens permanentemente.');
+            }
+        };
+        reader.readAsDataURL(file);
+        fileInput.value = '';
+    });
+
+    // Carrega automaticamente imagens já vinculadas anteriormente
+    window.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.img-slot').forEach(slot => {
+            const slotId = slot.getAttribute('data-slot-id');
+            const savedImg = localStorage.getItem('smart40_' + slotId);
+            if (savedImg) {
+                const imgElement = slot.querySelector('img');
+                imgElement.src = savedImg;
+                slot.classList.add('loaded');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
